@@ -1,0 +1,50 @@
+---
+title: "MtGonga"
+author: "Linn Aasvestad"
+date: "5/26/2021"
+output: html_document
+---
+
+## Loading libraries 
+```{r , message=FALSE} 
+library(tidyverse)
+library(readxl)
+```
+
+## Importing data 
+
+The data was imported using excel_sheets, and was an excel file containing 4 sheets. 
+
+```{r dataimport, warning=FALSE} 
+datafile <- "biomass2015 (2).xls"
+
+biomass.df <- excel_sheets(datafile) %>% 
+  map_df(~read_xls(datafile, .)) # the dot takes all the available sheets we found using the excel_sheet function into the parameter 
+ 
+
+```
+
+## Cleaning data frame
+The data frame was cleaned to make it easier to visualise the data that was being used. 
+
+```{r cleaning, warning=FALSE, message=FALSE}
+biomass <- biomass.df %>% 
+  select(production, site, plot) %>% #keeping relevant columns 
+  drop_na() %>% 
+  group_by(site, plot) %>% #we want to look at tot biomass in each site/plot 
+  summarise(tot_biomass = sum(production)) #making a new column with total biomass  this function will create a row for each combinations of groupings 
+
+```
+
+## Plots of total biomass 
+
+
+```{r total biomass}
+biomass_plot <- ggplot() + 
+  geom_boxplot(data = biomass, 
+               aes(x = plot, y = tot_biomass, fill = plot)) + 
+  theme(legend.position = "none")
+biomass_plot
+
+```
+
